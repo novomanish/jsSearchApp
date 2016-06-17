@@ -63,6 +63,15 @@
     <h2>{{name}}</h2>
     <p><b>About:</b><br />{{about}}</p>
     <p><b>Description:</b><br /> {{description}}</p>
+    <p><b>Posts:</b></p>
 </script>
+<script id="postTemplate" type="text/x-template">
+    <div data-id="{{id}}">
+      <p><b>Created On:</b> {{created_time}} </p>
+      <p><b>Message:</b> {{message}} {{story}}</p>
+    </div>
+    <hr />
+</script>
+
 </body>
 </html>

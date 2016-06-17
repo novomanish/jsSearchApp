@@ -5,12 +5,12 @@ var DataService = utils.ds = {
     _cache: function(r){
         DataService._lastResponse = r;
     },
-    _callbackWrapper: function(pid, callback){
+    _callbackWrapper: function(pid, callback, skipCache){
         return function (response) {
             utils.em.trigger(utils.em.EVENT_PROCESS_STOP, pid);
             if (response && !response.error) {
                 console.log(response);
-                DataService._cache(response);
+                if(!skipCache) DataService._cache(response);
                 if(callback) callback(response);
             }
         };
@@ -26,7 +26,7 @@ var DataService = utils.ds = {
             "/search",
             {
                 "q": query,
-                "fields": "id,name, about, description, release_date",
+                "fields": "id,name, about, description, creation_time",
                 "type": "page",
                 "access_token": FB_ACCESS_TOKEN
             },
@@ -40,11 +40,11 @@ var DataService = utils.ds = {
         FB.api(
             "/"+pageId,
             {
-                "fields": "id, name, about, description, release_date",
+                "fields": "id, name, about, description, posts.order(reverse_chronological)",
                 "type": "page",
                 "access_token": FB_ACCESS_TOKEN
             },
-            DataService._callbackWrapper(searchArg.pid, callback)
+            DataService._callbackWrapper(searchArg.pid, callback, true)
         );
     },
     _pageByUrl: function(url, title, callback){

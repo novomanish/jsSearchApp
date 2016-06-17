@@ -252,6 +252,12 @@ var PageView = View.PageView = {
     render: function(data){
         var template = View.node("#pageTemplate").html();
         var html = View.template.merge(template, data);
+
+        if(data.posts.data){
+            html += View.template.merge(View.node("#postTemplate").html(), data.posts.data);
+        }
+
+
         var div = View.node(".content");
         div.html(html);
         div.node.scrollIntoView();
