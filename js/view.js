@@ -197,7 +197,7 @@ var SearchResultView = View.SearchResultView = {
 
         ul.html(html);
 
-        ul.node.querySelectorAll("li").forEach(function(li){
+        Array.prototype.forEach.call(ul.node.querySelectorAll("li"), function(li){
             var liw = View.node(li);
             li.addEventListener("click", function(e){
                 if(!liw.hasClass("resultPaging")){
@@ -218,7 +218,7 @@ var SearchResultView = View.SearchResultView = {
 
         var favPageIds = utils.ds.getFavIds();
 
-        ul.node.querySelectorAll(".star").forEach(function(starEl){
+        Array.prototype.forEach.call(ul.node.querySelectorAll(".star"), function(starEl){
             var stw = View.node(starEl);
             var liw = stw.parent().parent();
             var pageId = liw.node.getAttribute("data-id");
