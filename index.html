@@ -6,6 +6,7 @@
 
 
     <script src="js/lib.js" type="text/Javascript"></script>
+    <script src="js/model.js" type="text/Javascript"></script>
     <script src="js/view.js" type="text/Javascript"></script>
     <script src="js/index.js" type="text/Javascript"></script>
 </head>
@@ -38,23 +39,30 @@
 <h1> Javascript Search Facebook Pages</h1>
 <hr />
 <div class="search-container">
-  <input type="text" name="search" class="search-input" autofocus="true" placeholder="Search pages by name"></input><button class="search-button">Search</button>
-  <a id="Favorites" href="javascript:;" style="float:right;"><span class="star_on">&nbsp;</span> Favorite Pages</a>
+  <form name="searchForm">
+    <input type="text" name="search" class="search-input" autofocus="true" placeholder="Search pages by name"></input>
+    <input type="submit" class="search-button" value="Search"></input>
+    <a id="Favorites" href="javascript:;" style="float:right;"><span class="star_on">&nbsp;</span> Favorite Pages</a>
+  </form>
 </div>
 <div>
   <ul class="list-container">
   </ul>
   <div class="content">
-      <h2>Name</h2>
-      <p> About description </p>
-      <p> About description More </p>
   </div>
 </div>
 <script id="searchLiTemplate" type="text/x-template">
-    <li>
-      <h2><span class="star_{{star}}">&nbsp;</span> {{name}} </h2>
+    <li data-id="{{id}}">
+      <h2><span class="star star_{{star}}">&nbsp;</span> {{name}} </h2>
+      <span> {{release_date}} </span>
       <span> {{about}} </span>
     </li>
+</script>
+<script id="pageTemplate" type="text/x-template">
+    <span> {{release_date}} </span>
+    <h2>{{name}}</h2>
+    <p><b>About:</b><br />{{about}}</p>
+    <p><b>Description:</b><br /> {{description}}</p>
 </script>
 </body>
 </html>

@@ -25,22 +25,30 @@ NodeWrapper.prototype = {
     find: function(querySelector){
         return new NodeWrapper(this.node.querySelector(querySelector));
     },
-    addClass: function(toAdd){
+    hasClass: function(className){
+        if(!this.node) return;
         var alreadyExisting = false;
-        var className = this.node.className;
-        var split = className.split(" ");
+        var cns = this.node.className;
+        var split = cns.split(" ");
         for(var i=0; i<split.length; i++){
             var cn = split[i];
-            if(cn === toAdd){
+            if(cn === className){
                 alreadyExisting = true;
                 break;
             }
         }
-        if(!alreadyExisting){
+        return alreadyExisting;
+    },
+    addClass: function(toAdd){
+        if(!this.node) return;
+        
+        if(!this.hasClass(toAdd)){
+            var className = this.node.className;
             this.node.className = className + " "+ toAdd;
         }
     },
     removeClass: function(toRemove){
+        if(!this.node) return;
         var className = this.node.className;
         var split = className.split(" ");
         var newClassNames = [];
@@ -127,7 +135,19 @@ function clone(obj) {
 var SearchView = View.SearchView = {
     init: function(){
         var btn = View.node(".search-button");
-        btn.node.addEventListener("click", SearchView.search);
+        btn.node.form.addEventListener("submit", function(e){
+            SearchView.search();
+            e.preventDefault();
+            return false;
+        });
+
+        var favLink = View.node("#Favorites");
+        favLink.node.addEventListener("click", function(e){
+            SearchView.fav();
+            e.preventDefault();
+            return false;
+        });
+
     },
     search: function(){
         var input = View.node(".search-input");
@@ -135,6 +155,9 @@ var SearchView = View.SearchView = {
         if(value && value.trim()){
             utils.ds.search(value, SearchResultView.render);
         }
+    },
+    fav: function(){
+        utils.ds.getFavs(SearchResultView.render);
     }
 };
 var SearchResultView = View.SearchResultView = {
@@ -161,8 +184,79 @@ var SearchResultView = View.SearchResultView = {
 
         var html = View.template.merge(template, parsedData);
         var ul = View.node(".list-container");
+        if(response.paging){
+            html += "<li class='resultPaging'>&nbsp;";
+            if(response.paging.previous){
+                html += "<a href='javascript:;' class='resultPreviousPage'>Previous</a>";
+            }
+            if(response.paging.next){
+                html += "<a href='javascript:;' class='resultNextPage'>Next</a>";
+            }
+            html +="</li>";
+        }
+
         ul.html(html);
+
+        ul.node.querySelectorAll("li").forEach(function(li){
+            var liw = View.node(li);
+            li.addEventListener("click", function(e){
+                if(!liw.hasClass("resultPaging")){
+                    View.selectLi(li);
+                    var pageId = li.getAttribute("data-id");
+                    utils.ds.page(pageId, PageView.render);
+                }else{
+                    var trw = View.node(e.target);
+                    if(trw.hasClass("resultPreviousPage")){
+                        utils.ds.previous(SearchResultView.render);
+                    }else{
+                        utils.ds.next(SearchResultView.render);
+                    }
+                    
+                }
+            });
+        });
+
+        var favPageIds = utils.ds.getFavIds();
+
+        ul.node.querySelectorAll(".star").forEach(function(starEl){
+            var stw = View.node(starEl);
+            var liw = stw.parent().parent();
+            var pageId = liw.node.getAttribute("data-id");
+
+            // Decorating star
+            if(favPageIds.indexOf(pageId) > -1){
+                stw.removeClass("star_off");
+                stw.addClass("star_on");
+            }
+
+
+            stw.node.addEventListener("click", function(e){
+                if(stw.hasClass("star_off")){
+                    utils.ds.fav(pageId);
+                    stw.removeClass("star_off");
+                    stw.addClass("star_on");
+                }else{
+                    utils.ds.unFav(pageId);
+                    stw.removeClass("star_on");
+                    stw.addClass("star_off");
+                }
+                e.stopPropagation();
+            });
+        });
+
+
     }
 };
+
+var PageView = View.PageView = {
+    render: function(data){
+        var template = View.node("#pageTemplate").html();
+        var html = View.template.merge(template, data);
+        var div = View.node(".content");
+        div.html(html);
+        div.node.scrollIntoView();
+    }
+};
+
 
 })();

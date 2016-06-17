@@ -24,6 +24,9 @@
 .search-container{
     height: 50px;
 }
+.resultNextPage{
+    float:right;
+}
 
 .list-container {
     float:left;
@@ -34,6 +37,7 @@
 .list-container li{
     border-bottom:1px solid black;
     padding-bottom: 5px;
+    padding-right: 20px;
 }
 .list-container li:hover, .list-container .active{
     background-color: #fbfbfb;

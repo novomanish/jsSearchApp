@@ -98,49 +98,4 @@ var ProgressBar = utils.pb = {
 };
 ProgressBar.init();
 
-
-var DataService = utils.ds = {
-    _callbackWrapper: function(pid, callback){
-        return function (response) {
-            utils.em.trigger(utils.em.EVENT_PROCESS_STOP, pid);
-            if (response && !response.error) {
-                console.log(response);
-                if(callback) callback(response);
-            }
-        };
-
-    },
-    search: function(query, callback){
-        /* make the API call */
-        var searchArg = {pid: utils.pig.next(), title:"Searching "+query};
-        utils.em.trigger(utils.em.EVENT_PROCESS_START, searchArg);
-
-        //1152877258068612, search
-        FB.api(
-            "/search",
-            {
-                "q": query,
-                "fields": "id,name, about, description",
-                "type": "page",
-                "access_token": FB_ACCESS_TOKEN
-            },
-            DataService._callbackWrapper(searchArg.pid, callback)
-        );
-    },
-    page: function(pageId, callback){
-        var searchArg = {pid: u.pig.next(), title:"Loading Page"};
-        u.em.trigger(u.em.EVENT_PROCESS_START, searchArg);
-
-        FB.api(
-            "/"+pageId,
-            {
-                "fields": "id,name, about, description",
-                "type": "page",
-                "access_token": FB_ACCESS_TOKEN
-            },
-            DataService._callbackWrapper(searchArg.pid, callback)
-        );
-    }
-};
-
 })();
