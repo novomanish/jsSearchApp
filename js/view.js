@@ -253,7 +253,7 @@ var PageView = View.PageView = {
         var template = View.node("#pageTemplate").html();
         var html = View.template.merge(template, data);
 
-        if(data.posts.data){
+        if(data.posts && data.posts.data){
             html += View.template.merge(View.node("#postTemplate").html(), data.posts.data);
         }
 
