@@ -1,0 +1,22 @@
+@keyframes progress-bar-animation {
+    from {background-position: 0}
+    to {background-position:100%;}
+}
+
+.progress-bar{
+    position: fixed;
+    top: 0;
+    left: 50%;
+    border-radius: 10px;
+    border: 2px solid;
+    padding: 5px;
+    background-color: #e8e818;
+    background: linear-gradient(90deg, yellow, #ffb4b4, yellow);
+    color: brown;
+    background-size: 20% 100%;
+
+    animation-name: progress-bar-animation;
+    animation-duration: 5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
