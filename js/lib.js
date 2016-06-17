@@ -1,37 +1,14 @@
 (function(){
 var utils = window.u = window.u || {};
 
-var NodeWrapper = function(node){
-    this.node = node;
-};
-NodeWrapper.prototype = {
-    html: function(html){
-        if(undefined === html){
-            return this.node.innerHTML;
-        }else{
-            this.node.innerHTML = html;
-        }
-        
-    },
-    show: function(){
-        this.node.style.display = "";
-    },
-    hide: function(){
-        this.node.style.display = "none";
-    }
-};
 var Bind = utils.bind = function(f, scope){
     return function(){
         return f.apply(scope, arguments);
     };
 };
-var Node = utils.node = {
-    get: function(querySelector){
-        return new NodeWrapper(document.querySelector(querySelector));
-    }
-};
-
 var EventManager = utils.em = {
+    EVENT_PROCESS_START: "process:start",
+    EVENT_PROCESS_STOP: "process:stop",
     trigger: function(evtName, data){
         var e = new CustomEvent(evtName, {detail: data});
         dispatchEvent(e);
@@ -42,15 +19,12 @@ var EventManager = utils.em = {
         });
     }
 };
-var EVENT_AJAX_START = "ajax:start";
-var EVENT_AJAX_STOP = "ajax:stop";
-
 var Ajax = utils.ajax = {
     _init: function(){
     },
     _onLoadWrapper: function(pid, callback, errorCallback){
         return function(r){
-            utils.em.trigger(EVENT_AJAX_STOP, pid);
+            utils.em.trigger(utils.em.EVENT_PROCESS_STOP, pid);
 
             var ct = r.currentTarget;
             if(ct.status == 200){
@@ -65,7 +39,7 @@ var Ajax = utils.ajax = {
     get: function(args){
         var pid = utils.pig.next();
         args.pid = pid;
-        utils.em.trigger(EVENT_AJAX_START, args);
+        utils.em.trigger(utils.em.EVENT_PROCESS_START, args);
 
         Ajax.req = new XMLHttpRequest();
         Ajax.req.addEventListener("load", Ajax._onLoadWrapper(pid, args.success, args.error));
@@ -93,22 +67,22 @@ var ProgressBar = utils.pb = {
         }
     },
     _show: function(arg){
-        var n = utils.node.get(".progress-bar");
+        var n = utils.view.node(".progress-bar");
         n.show();
         n.html(arg.title);
 
     },
     _hide: function(){
-        var n = utils.node.get(".progress-bar");
+        var n = utils.view.node(".progress-bar");
         n.hide();
     },
     init: function(){
-        utils.em.on(EVENT_AJAX_START, function(args){
+        utils.em.on(utils.em.EVENT_PROCESS_START, function(args){
             if(args.title){
                 ProgressBar.que(args);
             }
         });
-        utils.em.on(EVENT_AJAX_STOP, function(args){
+        utils.em.on(utils.em.EVENT_PROCESS_STOP, function(args){
             ProgressBar.unQue(args);
         });
     },
@@ -123,5 +97,50 @@ var ProgressBar = utils.pb = {
     }
 };
 ProgressBar.init();
+
+
+var DataService = utils.ds = {
+    _callbackWrapper: function(pid, callback){
+        return function (response) {
+            utils.em.trigger(utils.em.EVENT_PROCESS_STOP, pid);
+            if (response && !response.error) {
+                console.log(response);
+                if(callback) callback(response);
+            }
+        };
+
+    },
+    search: function(query, callback){
+        /* make the API call */
+        var searchArg = {pid: utils.pig.next(), title:"Searching "+query};
+        utils.em.trigger(utils.em.EVENT_PROCESS_START, searchArg);
+
+        //1152877258068612, search
+        FB.api(
+            "/search",
+            {
+                "q": query,
+                "fields": "id,name, about, description",
+                "type": "page",
+                "access_token": FB_ACCESS_TOKEN
+            },
+            DataService._callbackWrapper(searchArg.pid, callback)
+        );
+    },
+    page: function(pageId, callback){
+        var searchArg = {pid: u.pig.next(), title:"Loading Page"};
+        u.em.trigger(u.em.EVENT_PROCESS_START, searchArg);
+
+        FB.api(
+            "/"+pageId,
+            {
+                "fields": "id,name, about, description",
+                "type": "page",
+                "access_token": FB_ACCESS_TOKEN
+            },
+            DataService._callbackWrapper(searchArg.pid, callback)
+        );
+    }
+};
 
 })();

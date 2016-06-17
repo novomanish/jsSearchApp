@@ -6,16 +6,25 @@
 
 
     <script src="js/lib.js" type="text/Javascript"></script>
+    <script src="js/view.js" type="text/Javascript"></script>
     <script src="js/index.js" type="text/Javascript"></script>
 </head>
 <body>
+  <div class="progress-bar" style="display:none1;">Default</div>
 <script>
+  var fbAsyncInitArg = {pid: u.pig.next(), title:"Initializing Facebook API"};
+  u.em.trigger(u.em.EVENT_PROCESS_START, fbAsyncInitArg);
+  var FB_APP_ID = '912795562164232';
+  var FB_APP_SECRECT = "5da82877c9e0a00c86148462bb0a0ebf";
+  var FB_ACCESS_TOKEN = FB_APP_ID + "|" + FB_APP_SECRECT;
   window.fbAsyncInit = function() {
-    FB.init({
-      appId      : '912795562164232',
-      xfbml      : true,
-      version    : 'v2.6'
-    });
+      FB.init({
+        appId      : FB_APP_ID,
+        xfbml      : true,
+        version    : 'v2.6'
+      });
+      u.em.trigger(u.em.EVENT_PROCESS_STOP, fbAsyncInitArg.pid);
+      entry();
   };
 
   (function(d, s, id){
@@ -26,9 +35,26 @@
      fjs.parentNode.insertBefore(js, fjs);
    }(document, 'script', 'facebook-jssdk'));
 </script>
-
-
-    
-    <div class="progress-bar" style="display:none;">Default</div>
+<h1> Javascript Search Facebook Pages</h1>
+<hr />
+<div class="search-container">
+  <input type="text" name="search" class="search-input" autofocus="true" placeholder="Search pages by name"></input><button class="search-button">Search</button>
+  <a id="Favorites" href="javascript:;" style="float:right;"><span class="star_on">&nbsp;</span> Favorite Pages</a>
+</div>
+<div>
+  <ul class="list-container">
+  </ul>
+  <div class="content">
+      <h2>Name</h2>
+      <p> About description </p>
+      <p> About description More </p>
+  </div>
+</div>
+<script id="searchLiTemplate" type="text/x-template">
+    <li>
+      <h2><span class="star_{{star}}">&nbsp;</span> {{name}} </h2>
+      <span> {{about}} </span>
+    </li>
+</script>
 </body>
 </html>
